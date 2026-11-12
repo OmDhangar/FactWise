@@ -172,3 +172,4 @@ assert(metricsAfterIntake.available_beds === 0, `Available beds returns to 0`);
 
 console.log(`\n=== VERIFICATION COMPLETE: ${passCount} PASSED, ${failCount} FAILED ===`);
 if (failCount > 0) process.exit(1);
+
