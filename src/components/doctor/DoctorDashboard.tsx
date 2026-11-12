@@ -16,9 +16,8 @@ import {
   Search,
   CheckCircle2,
   Clock,
-  AlertTriangle,
   AlertCircle,
-  ShieldCheck,
+  AlertTriangle,
 } from 'lucide-react';
 
 export function DoctorDashboard() {
@@ -84,53 +83,53 @@ export function DoctorDashboard() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Top Header */}
-      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900">Doctor Clinical Rounds</h1>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            <h1 className="text-lg sm:text-xl font-bold text-slate-900">Doctor Clinical Rounds</h1>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
               Coordinated Workflow
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Visual focus: Patients with completed morning temperatures are prepared for clinical evaluation. No wasted time measuring unready patients.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Patients with completed morning temperatures are prepared for evaluation. No wasted visits.
           </p>
         </div>
 
         {/* Doctor Rounds Counters */}
-        <div className="flex items-center gap-3">
-          <div className="px-3.5 py-2 rounded-lg bg-blue-50 border border-blue-200 text-right">
-            <div className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider">Ready for Exam</div>
-            <div className="text-lg font-bold text-blue-900">{readyPatients.length} Patients</div>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+          <div className="px-3 py-2 rounded-lg bg-blue-50 border border-blue-200 text-center sm:text-right">
+            <div className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Ready for Exam</div>
+            <div className="text-xl font-extrabold text-blue-900 font-mono">{readyPatients.length}</div>
           </div>
-          <div className="px-3.5 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-right">
-            <div className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">Examined Today</div>
-            <div className="text-lg font-bold text-emerald-900">{completedTodayPatients.length} Patients</div>
+          <div className="px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-center sm:text-right">
+            <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Examined Today</div>
+            <div className="text-xl font-extrabold text-emerald-900 font-mono">{completedTodayPatients.length}</div>
           </div>
         </div>
       </div>
 
-      {/* High-Priority Re-Review Alert Banner (Requirement 8) */}
+      {/* High-Priority Re-Review Alert Banner */}
       {reReviewPatients.length > 0 && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 shadow-sm flex items-center justify-between gap-4 animate-pulse">
+        <div className="p-3.5 sm:p-4 rounded-xl bg-rose-50 border border-rose-300 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-pulse">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-rose-600 text-white flex items-center justify-center shrink-0">
               <AlertCircle className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-sm font-bold text-rose-900">
+              <div className="text-xs sm:text-sm font-bold text-rose-900">
                 Action Required: {reReviewPatients.length} Discharge(s) Invalidated by Fever Spike
               </div>
-              <p className="text-xs text-rose-700 mt-0.5">
-                The attending physician must re-evaluate patients whose discharge approvals were automatically revoked due to fever.
+              <p className="text-[11px] text-rose-700">
+                Attending doctor re-evaluation required. Streak reset to 0.
               </p>
             </div>
           </div>
           <button
             onClick={() => setFilterTab('rereview')}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 shrink-0 shadow-sm"
+            className="w-full sm:w-auto px-4 py-2 rounded-lg text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 shrink-0 shadow-sm"
           >
             Review Flagged Patients
           </button>
@@ -138,75 +137,66 @@ export function DoctorDashboard() {
       )}
 
       {/* Queue Filter Tabs & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200 overflow-x-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="flex items-center gap-1.5 bg-slate-200/80 p-1 rounded-xl border border-slate-300 overflow-x-auto">
           {/* Tab 1: Ready for Exam (Primary Focus) */}
           <button
             onClick={() => setFilterTab('ready')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               filterTab === 'ready'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-            <span>Ready for Exam</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-blue-100 text-blue-800 font-bold">
-              {readyPatients.length}
-            </span>
+            <span>Ready ({readyPatients.length})</span>
           </button>
 
           {/* Tab: Re-Review (if any) */}
           {reReviewPatients.length > 0 && (
             <button
               onClick={() => setFilterTab('rereview')}
-              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 filterTab === 'rereview'
                   ? 'bg-rose-600 text-white shadow-sm'
                   : 'text-rose-700 bg-rose-100 hover:bg-rose-200'
               }`}
             >
               <AlertCircle className="w-3.5 h-3.5" />
-              <span>Requires Re-Review ({reReviewPatients.length})</span>
+              <span>Re-Review ({reReviewPatients.length})</span>
             </button>
           )}
 
           {/* Tab 2: Awaiting Temperature */}
           <button
             onClick={() => setFilterTab('awaiting')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               filterTab === 'awaiting'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Clock className="w-3.5 h-3.5 text-amber-500" />
-            <span>Awaiting Temp</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-800 font-bold">
-              {awaitingTempPatients.length}
-            </span>
+            <span>Awaiting Temp ({awaitingTempPatients.length})</span>
           </button>
 
           {/* Tab 3: Completed Today */}
           <button
             onClick={() => setFilterTab('completed')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               filterTab === 'completed'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             <Stethoscope className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Completed Today</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">
-              {completedTodayPatients.length}
-            </span>
+            <span>Done ({completedTodayPatients.length})</span>
           </button>
 
           {/* Tab 4: All Admitted */}
           <button
             onClick={() => setFilterTab('all')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
               filterTab === 'all'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
@@ -224,13 +214,111 @@ export function DoctorDashboard() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search bed (B-01) or name..."
-            className="w-full h-9 pl-9 pr-4 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500 bg-white"
           />
         </div>
       </div>
 
-      {/* Main Doctor Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* MOBILE CARD VIEW: Visible on Mobile screens (< md) */}
+      <div className="block md:hidden space-y-3">
+        {filteredPatients.length === 0 ? (
+          <div className="bg-white rounded-xl p-8 text-center text-slate-400 border border-slate-200">
+            <CheckCircle2 className="w-8 h-8 mx-auto text-blue-500 mb-2" />
+            <p className="text-sm font-bold text-slate-700">No patients in this queue</p>
+            <p className="text-xs text-slate-400 mt-1">Select another queue tab above.</p>
+          </div>
+        ) : (
+          filteredPatients.map((patient) => {
+            const tempStatus = getDailyTemperatureStatus(
+              patient.id,
+              temperatureRecords,
+              facilityDate
+            );
+            const visitStatus = getDailyDoctorVisitStatus(
+              patient.id,
+              doctorVisits,
+              facilityDate
+            );
+            const streakResult = calculateFeverFreeStreak(
+              patient.id,
+              temperatureRecords,
+              patient.admission_date,
+              feverThreshold,
+              facilityDate
+            );
+
+            const todayRecord = streakResult.todayPrimaryReading;
+
+            return (
+              <div
+                key={patient.id}
+                className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm space-y-3"
+              >
+                {/* Header Row */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-12 h-12 rounded-xl bg-slate-900 text-white font-mono font-extrabold text-base flex items-center justify-center shadow-sm shrink-0">
+                      {patient.bed_number}
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                        {patient.full_name}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {patient.display_id} • Age {patient.age}
+                      </p>
+                    </div>
+                  </div>
+
+                  <StatusBadge
+                    status={visitStatus.status === 'completed' ? 'completed' : 'pending'}
+                    label={visitStatus.status === 'completed' ? 'Examined' : 'Pending Visit'}
+                  />
+                </div>
+
+                {/* Vitals Summary Row */}
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-400">Temp:</span>
+                    {todayRecord ? (
+                      <span
+                        className={`font-mono font-bold px-2 py-0.5 rounded text-xs ${
+                          todayRecord.is_fever
+                            ? 'bg-rose-100 text-rose-800 font-extrabold'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {todayRecord.temperature_celsius}°C
+                      </span>
+                    ) : (
+                      <span className="text-amber-600 font-medium text-[11px] flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> Pending Nurse
+                      </span>
+                    )}
+                  </div>
+
+                  <StreakBadge
+                    streakDays={streakResult.streakDays}
+                    isEligible={streakResult.isEligibleForDischargeApproval}
+                  />
+                </div>
+
+                {/* PROPER MOBILE BUTTON: 100% VISIBLE ON FIRST VIEW */}
+                <button
+                  onClick={() => setSelectedPatient(patient)}
+                  className="w-full py-3 px-4 rounded-xl text-sm font-extrabold bg-slate-900 text-white hover:bg-blue-600 active:scale-95 shadow transition-all flex items-center justify-center gap-2"
+                >
+                  <Stethoscope className="w-4 h-4 text-blue-400" />
+                  <span>Examine Patient ({patient.bed_number})</span>
+                </button>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* DESKTOP TABLE VIEW: Shown on Medium & Large Screens (hidden md:block) */}
+      <div className="hidden md:block bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold tracking-wider text-[11px]">
@@ -391,4 +479,3 @@ export function DoctorDashboard() {
     </div>
   );
 }
-
