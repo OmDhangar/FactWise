@@ -10,7 +10,7 @@ import {
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { StreakBadge } from '@/components/common/StreakBadge';
 import { TempRecordModal } from './TempRecordModal';
-import { Search, Thermometer, CheckCircle2, Clock, AlertTriangle, Plus } from 'lucide-react';
+import { Search, Thermometer, CheckCircle2, Clock, Plus, Zap, ArrowRight } from 'lucide-react';
 
 export function NurseDashboard() {
   const { patients, temperatureRecords, facilityDate, feverThreshold, metrics } = useStore();
@@ -43,103 +43,243 @@ export function NurseDashboard() {
     return true;
   });
 
+  // Find first pending patient for 1-click Quick Triage Action
+  const nextPendingPatient = activePatients.find(
+    (p) => getDailyTemperatureStatus(p.id, temperatureRecords, facilityDate) === 'pending'
+  );
+
   return (
-    <div className="space-y-6">
-      {/* Top Header & Operational Compliance Banner */}
-      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-slate-900">Nurse Daily Triage Roster</h1>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-              Morning Rounds
-            </span>
+    <div className="space-y-4 sm:space-y-6">
+      {/* 1-CLICK QUICK ACTION: Next Pending Patient (First View on Mobile!) */}
+      {nextPendingPatient && filterTab === 'pending' && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-lg border border-blue-500 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex flex-col items-center justify-center font-mono font-extrabold text-white shrink-0 border border-white/30">
+              <span className="text-[9px] uppercase tracking-wider text-blue-100">BED</span>
+              <span className="text-base leading-none">{nextPendingPatient.bed_number}</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-extrabold tracking-wider uppercase px-2 py-0.5 rounded bg-amber-400 text-amber-950">
+                  Next Pending Round
+                </span>
+                <span className="text-xs text-blue-100">{nextPendingPatient.display_id}</span>
+              </div>
+              <h2 className="text-base sm:text-lg font-bold leading-tight mt-0.5">
+                {nextPendingPatient.full_name}
+              </h2>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            Visual focus: Record daily primary body temperatures in Celsius. Prevents duplicate measurements & synchronizes doctor queues.
-          </p>
+
+          <button
+            onClick={() => setSelectedPatient(nextPendingPatient)}
+            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white text-blue-700 hover:bg-blue-50 font-extrabold text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
+            <Zap className="w-4 h-4 fill-blue-600 text-blue-600" />
+            <span>Record Bed {nextPendingPatient.bed_number} Now</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Triage Stats Row - Compact & Mobile Optimized */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="bg-amber-50 p-3 sm:p-4 rounded-xl border border-amber-200 text-center sm:text-left">
+          <div className="text-[10px] sm:text-xs font-bold text-amber-700 uppercase tracking-wider">
+            Pending
+          </div>
+          <div className="text-xl sm:text-2xl font-extrabold text-amber-900 mt-0.5 font-mono">
+            {metrics.measured_pending_count}
+          </div>
+          <p className="text-[10px] text-amber-700/80 hidden sm:block">Patients awaiting round</p>
         </div>
 
-        {/* Triage Stats Widget */}
-        <div className="flex items-center gap-3">
-          <div className="px-3.5 py-2 rounded-lg bg-amber-50 border border-amber-200 text-right">
-            <div className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">Pending Today</div>
-            <div className="text-lg font-bold text-amber-900">{metrics.measured_pending_count} Patients</div>
+        <div className="bg-emerald-50 p-3 sm:p-4 rounded-xl border border-emerald-200 text-center sm:text-left">
+          <div className="text-[10px] sm:text-xs font-bold text-emerald-700 uppercase tracking-wider">
+            Completed
           </div>
-          <div className="px-3.5 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-right">
-            <div className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">Completed Today</div>
-            <div className="text-lg font-bold text-emerald-900">{metrics.measured_today_count} Patients</div>
+          <div className="text-xl sm:text-2xl font-extrabold text-emerald-900 mt-0.5 font-mono">
+            {metrics.measured_today_count}
           </div>
-          <div className="px-3.5 py-2 rounded-lg bg-slate-50 border border-slate-200 text-right">
-            <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Daily Progress</div>
-            <div className="text-lg font-bold text-blue-600">{metrics.temperature_completion_rate}%</div>
+          <p className="text-[10px] text-emerald-700/80 hidden sm:block">Measured this morning</p>
+        </div>
+
+        <div className="bg-blue-50 p-3 sm:p-4 rounded-xl border border-blue-200 text-center sm:text-left">
+          <div className="text-[10px] sm:text-xs font-bold text-blue-700 uppercase tracking-wider">
+            Progress
           </div>
+          <div className="text-xl sm:text-2xl font-extrabold text-blue-900 mt-0.5 font-mono">
+            {metrics.temperature_completion_rate}%
+          </div>
+          <p className="text-[10px] text-blue-700/80 hidden sm:block">Daily morning triage</p>
         </div>
       </div>
 
       {/* Filter Tabs & Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        {/* Filter Pills with Full-width touch tabs on mobile */}
+        <div className="grid grid-cols-3 gap-1 bg-slate-200/80 p-1 rounded-xl border border-slate-300">
           <button
             onClick={() => setFilterTab('pending')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
               filterTab === 'pending'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Clock className="w-3.5 h-3.5 text-amber-500" />
-            <span>Pending Measurements</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-800 font-bold">
+            <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span>Pending</span>
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-100 text-amber-900 font-extrabold">
               {metrics.measured_pending_count}
             </span>
           </button>
 
           <button
             onClick={() => setFilterTab('completed')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
               filterTab === 'completed'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Completed Today</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>Done</span>
+            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-900 font-extrabold">
               {metrics.measured_today_count}
             </span>
           </button>
 
           <button
             onClick={() => setFilterTab('all')}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
               filterTab === 'all'
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <span>All Patients</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-700 font-bold">
-              {activePatients.length}
-            </span>
+            <span>All ({activePatients.length})</span>
           </button>
         </div>
 
-        {/* Search Input */}
-        <div className="relative w-full sm:w-72">
+        {/* Quick Search */}
+        <div className="relative w-full sm:w-64">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search bed (B-01) or name..."
-            className="w-full h-9 pl-9 pr-4 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500 bg-white"
           />
         </div>
       </div>
 
-      {/* Main Patient Table (Clean, high-contrast, linear-style) */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      {/* MOBILE CARD VIEW: Visible on Mobile screens (< md) - PROPER LARGE BUTTONS VISIBLE IMMEDIATELY! */}
+      <div className="block md:hidden space-y-3">
+        {filteredPatients.length === 0 ? (
+          <div className="bg-white rounded-xl p-8 text-center text-slate-400 border border-slate-200">
+            <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500 mb-2" />
+            <p className="text-sm font-bold text-slate-700">No patients in this list</p>
+            <p className="text-xs text-slate-400 mt-1">
+              {filterTab === 'pending' ? 'All morning temperatures completed!' : 'Try clearing your search.'}
+            </p>
+          </div>
+        ) : (
+          filteredPatients.map((patient) => {
+            const tempStatus = getDailyTemperatureStatus(
+              patient.id,
+              temperatureRecords,
+              facilityDate
+            );
+
+            const streakResult = calculateFeverFreeStreak(
+              patient.id,
+              temperatureRecords,
+              patient.admission_date,
+              feverThreshold,
+              facilityDate
+            );
+
+            const todayRecord = streakResult.todayPrimaryReading;
+
+            return (
+              <div
+                key={patient.id}
+                className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm space-y-3"
+              >
+                {/* Top Row: Bed #, Name, Status */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-12 h-12 rounded-xl bg-slate-900 text-white font-mono font-extrabold text-base flex items-center justify-center shadow-sm shrink-0">
+                      {patient.bed_number}
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                        {patient.full_name}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {patient.display_id} • Age {patient.age}
+                      </p>
+                    </div>
+                  </div>
+
+                  <StatusBadge
+                    status={tempStatus === 'completed' ? 'completed' : 'pending'}
+                    label={tempStatus === 'completed' ? 'Done' : 'Pending'}
+                  />
+                </div>
+
+                {/* Vitals Summary Row */}
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-400">Today:</span>
+                    {todayRecord ? (
+                      <span
+                        className={`font-mono font-bold px-2 py-0.5 rounded text-xs ${
+                          todayRecord.is_fever
+                            ? 'bg-rose-100 text-rose-800 font-extrabold'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {todayRecord.temperature_celsius}°C {todayRecord.is_fever ? '(Fever)' : ''}
+                      </span>
+                    ) : (
+                      <span className="text-amber-700 font-medium">Not measured yet</span>
+                    )}
+                  </div>
+
+                  <StreakBadge
+                    streakDays={streakResult.streakDays}
+                    isEligible={streakResult.isEligibleForDischargeApproval}
+                  />
+                </div>
+
+                {/* FULL-WIDTH PROPER ACTION BUTTON: VISIBLE IMMEDIATELY ON FIRST VIEW! */}
+                {tempStatus === 'pending' ? (
+                  <button
+                    onClick={() => setSelectedPatient(patient)}
+                    className="w-full py-3 px-4 rounded-xl text-sm font-extrabold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow transition-all flex items-center justify-center gap-2"
+                  >
+                    <Thermometer className="w-4 h-4" />
+                    <span>Record Temperature for Bed {patient.bed_number}</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setSelectedPatient(patient)}
+                    className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Add Clinical Check ({todayRecord?.temperature_celsius}°C logged)</span>
+                  </button>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* DESKTOP TABLE VIEW: Shown on Medium & Large Screens (hidden md:block) */}
+      <div className="hidden md:block bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-semibold tracking-wider text-[11px]">
@@ -227,9 +367,7 @@ export function NurseDashboard() {
                               {todayRecord.temperature_celsius}°C
                             </span>
                             {todayRecord.is_fever && (
-                              <span className="text-[10px] font-semibold text-rose-600 flex items-center gap-0.5">
-                                <AlertTriangle className="w-3 h-3" /> Fever
-                              </span>
+                              <span className="text-[10px] font-semibold text-rose-600">Fever</span>
                             )}
                           </div>
                         ) : (
@@ -250,7 +388,7 @@ export function NurseDashboard() {
                         {tempStatus === 'pending' ? (
                           <button
                             onClick={() => setSelectedPatient(patient)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all active:scale-95"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all active:scale-95"
                           >
                             <Thermometer className="w-3.5 h-3.5" />
                             <span>Record Temp</span>
@@ -284,4 +422,3 @@ export function NurseDashboard() {
     </div>
   );
 }
-
